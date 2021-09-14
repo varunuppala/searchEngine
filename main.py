@@ -8,8 +8,16 @@ import argparse
 import os
 import sys
 
+def identifyTokens(s):
+	``
 
-def checkParse():
+
+
+
+
+
+
+"""def checkParse():
 	# Create the parser
 	my_parser = argparse.ArgumentParser(description='List the content of a folder')
 
@@ -29,12 +37,13 @@ def checkParse():
 	    sys.exit()
 
 	print('\n'.join(os.listdir(input_path)))
-
+"""
 
 
 #Main function for all the calls to be made program
 def main():
-	checkParse()
+	s = input("enter a string")
+	identifyTokens(s)
 	print("hello world")
 
 
