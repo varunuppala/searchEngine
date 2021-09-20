@@ -1,0 +1,43 @@
+<DOC>
+<DOCNO> FR940104-0-00001 </DOCNO>
+<PARENT> FR940104-0-00001 </PARENT>
+<TEXT>
+
+<!-- PJG FTAG 4700 -->
+
+<!-- PJG STAG 4700 -->
+
+<!-- PJG ITAG l=90 g=1 f=1 -->
+
+<!-- PJG /ITAG -->
+
+<!-- PJG ITAG l=90 g=1 f=4 -->
+Federal Register
+<!-- PJG /ITAG -->
+
+<!-- PJG ITAG l=90 g=1 f=1 -->
+&blank;/&blank;Vol. 59, No. 2&blank;/&blank;Tuesday, January 4, 1994&blank;/&blank;Rules and Regulations
+
+<!-- PJG 0012 frnewline -->
+
+<!-- PJG /ITAG -->
+
+<!-- PJG ITAG l=01 g=1 f=1 -->
+Vol. 59, No. 2
+<!-- PJG 0012 frnewline -->
+
+<!-- PJG /ITAG -->
+
+<!-- PJG ITAG l=02 g=1 f=1 -->
+Tuesday, January 4, 1994
+<!-- PJG 0012 frnewline -->
+
+<!-- PJG 0012 frnewline -->
+
+<!-- PJG /ITAG -->
+
+<!-- PJG /STAG -->
+
+<!-- PJG /FTAG -->
+</TEXT>
+</DOC>
