@@ -15,23 +15,68 @@ import re
 
 #---------------- Validate Rows---------------------#
 def validateLine():
+	"""
+	checking if there are any comment lines
+	returning lines without comment lines
+	"""
 	document = readFile()
 	# for comment lines
 	comment = re.compile(r"^<!--[ a-zA-Z0-9 =\/]*-->$")
-	# for Blank Spaces
-	#blank = re.compile(r"[\s]+")
+
 	for i in document:
 		match = comment.search(i)
 		#match1 = blank.search(i)
-		if match:
-			pass
-		else:
-			print(i.split(' '))
+		if not match:
+			removeNewLine(i.split('\n'))
+
+#------------------------------------------------------------------------
+
+def removeNewLine(l):
+	"""
+	removing all the blank lines
+	returns pure lines
+	"""
+	pure = []
+	for i in l:
+		if i:
+			pure.append(i)
+	if pure:
+		handletags(pure[0])
+
+#-----------------------------------------------------------------------
+
+def handletags(row):
+	"""
+	handles tags for example <doc>
+	returns lines without them
+	"""
+	tags = re.compile(r"<[a-zA-Z\/]+>")
+	match = tags.search(row)
+	if match:
+		pass
+	else:
+		tokenize(row)
+
+def tokenize(row):
+	"""
+	catch the tokens clean them and hold in memory
+
+	"""
+	pass
+
+
+
+
+
 
 
 #----------------Loading all the stopwords to check further-------------------------#
 
 def getStopWords():
+	"""
+	Reading the stop words:
+	returns a dictonary of stopWords
+	"""
 	stopWords = {}
 	with open("stops.txt") as f:
 		for line in f:
@@ -40,11 +85,10 @@ def getStopWords():
 	return stopWords
 
 #--------------to check the document lines----------------------------#
-
 def identifyTokens():
 	stopWords=getStopWords()
 	document = readFile()
-	#stroing document numbers
+	#storing document numbers
 	documents = {}
 	doc_re = re.compile(r'<DOCNO>.([A-Za-z_-][A-Za-z0-9_-]*).<\/DOCNO>')
 	for i in document:
@@ -56,25 +100,17 @@ def identifyTokens():
 
 
 
-
-
-
-
-
-#----------------To read and yield each line of a file-------------------------#
+#----------------To read and yield each line of a file-------------------------
 def readFile():
 	for row in open("example.txt", "r"):
 		yield row
 
 #-----------------Main function for all the calls to be made program------------------------#
-
 def main():
 	#s = input("enter a string")
 	#readFile()
 	validateLine()
 
-#---------------------to call the main function----------------------------#
-
-
+#---------------------to call the main function----------------------------
 if __name__ == "__main__":
 	main()
