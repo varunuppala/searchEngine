@@ -4,7 +4,7 @@
 ---> Get all the stop words to ignore them from the document.
 ---> tokenize the documents using the stop words list.
 '''
-
+dict = {}
 
 #-------------import package/module----------------------------#
 #
@@ -12,6 +12,7 @@ import argparse
 import os
 import sys
 import re
+import string
 
 #---------------- Validate Rows---------------------#
 def validateLine():
@@ -55,15 +56,27 @@ def handletags(row):
 	if match:
 		pass
 	else:
-		tokenize(row)
+		removePunctuations(row.lower())
+
+def removePunctuations(row):
+	s = ''.join(c for c in row if c not in string.punctuation)
+	if " " in s:
+		tokenize(s)
+
+
+
+
 
 def tokenize(row):
-	"""
-	catch the tokens clean them and hold in memory
+		"""
+		catch the tokens clean them and hold in memory
 
-	"""
-	pass
-
+		"""
+		stopwords=getStopWords()
+		for i in row.split(" "):
+			if i not in stopwords.keys():
+				if i not in dict:
+					dict[i] = 1
 
 
 
@@ -71,7 +84,6 @@ def tokenize(row):
 
 
 #----------------Loading all the stopwords to check further-------------------------#
-
 def getStopWords():
 	"""
 	Reading the stop words:
@@ -110,6 +122,8 @@ def main():
 	#s = input("enter a string")
 	#readFile()
 	validateLine()
+	for i in dict:
+		print(i)
 
 #---------------------to call the main function----------------------------
 if __name__ == "__main__":
