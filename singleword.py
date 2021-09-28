@@ -5,7 +5,6 @@
 ---> tokenize the documents using the stop words list.
 '''
 dict = {}
-
 #-------------import package/module----------------------------#
 #
 import argparse
@@ -57,13 +56,24 @@ def handletags(row):
 	if match:
 		pass
 	else:
-		removePunctuations(row.lower())
+		htmlentities(row.lower())
+
+def htmlentities(row):
+	 #print(row)
+	 row = row.replace("&blank;",'')
+	 row = row.replace("&hyph;",'')
+	 row = row.replace("sect;",'')
+	 row = row.replace("&times;",'')
+	 row = row.replace("&para;",'')
+	 checkTokenType(row)
+
+
+
 
 def checkTokenType(row):
-	htmlentity = {'&blank;':' ','&hyph;':'-','&sect;':'§','&times':'x'}
 	row = row.split(' ')
 	# All the Regex
-	abbrevations = re.compile(r"[a-z]+[.][a-z]+") ### u.s.a
+	abbrevations = re.compile(r"(?:[a-zA-Z]+\.){2,}") ### u.s.a
 	monetory = re.compile(r"[$]([\d,]+)")#$20
 	digsepbycomma = re.compile(r"[\^\d]+[\,][\d]")
 	hyph = re.compile(r"(?=\S*['-])([a-zA-Z'-]+)")
@@ -77,9 +87,11 @@ def checkTokenType(row):
 
 	for i in row:
 		#Step a
+
 		if (abbrevations.search(i)):
 			j = i.replace('.',"")
 			removePunctuations(j)
+			print(i)
 
 		#monetory search step b
 		elif(monetory.search(i)):
@@ -103,52 +115,40 @@ def checkTokenType(row):
 					removePunctuations(alphdig.search(i).group(1))
 
 
+
 		#Dates
 		#number formatting
-		elif (digsepbycomma.search(i)):
-
-			j = i.replace(',',"")
-			removePunctuations(str(int(float(j))))
-
-
-		#file extensions
-		elif (fileextension.search(i)):
-
-			i = i.replace('.','')
-			removePunctuations(i)
 
 		#email
 		elif (emailcheck.search(i)):
-
 			removePunctuations(i)
 
 		#ip address
 		elif (ipcheck.search(i)):
+
 			removePunctuations(i)
 
 		#urls
 		elif (URLcheck.search(i)):
+
+			removePunctuations(i)
+
+		elif (fileextension.search(i)):
+
+			i = i.replace('.','')
 			removePunctuations(i)
 
 		else:
 			removePunctuations(i)
 
 
-def htmlentities(row):
-	htmlentity = {'&blank':' ','&hyph':'-','&sect':'§','&times':'x'}
-	row = row.split(';')
-	for i in row:
-		if i in htmlentity.keys():
-			i = ""
-	return "".join(i)
-
 
 def removePunctuations(row):
 	"""
 	removing punctuations
 	"""
-	s = ''.join(c for c in row if c not in string.punctuation)
-	tokenize(s)
+	s = ''.join(c for c in row if c in string.punctuation)
+	tokenize(row)
 
 
 

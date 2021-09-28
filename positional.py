@@ -3,7 +3,6 @@ import json
 
 pos_index = {}
 
-
 def readFile(filename):
 	for rows in open(filename, "r"):
 		yield rows
@@ -19,7 +18,6 @@ def validateLine(filename,documentnumber):
 		match = comment.search(i) #Checking commments
 		if i == "<DOC>\n":
 			stack.append("1")#appending in stack
-
 		elif i == "</DOC>\n" and stack:
 			stack.pop()
 			nextString(string,documentnumber)
@@ -27,10 +25,8 @@ def validateLine(filename,documentnumber):
 			documentnumber += 1
 
 		elif not match:
-				#Checking if match or not for comment lines and appending if required only
-				string+=i
-
-
+			#Checking if match or not for comment lines and appending if required only
+			string+=i
 
 
 def nextString(s,documentnumber):
@@ -38,20 +34,18 @@ def nextString(s,documentnumber):
     Removing all the new text except for ones between texts
     Removing additional tags also
     """
-    doc_re = re.compile(r'<DOCNO>.([A-Za-z_-][A-Za-z0-9_-]*).<\/DOCNO>')
-    tags = re.compile(r"<[a-zA-Z\/]+>")
-    start = s.find("<TEXT>") + len("<TEXT>")
-    end = s.find("<\TEXT>") - len("<\TEXT>")
-    text = s[start:end].lower()
-    new = []
-    for i in text.split("\n"):
-        match = tags.search(i)
-        if not match and i != "":
-            new.append(i)
+	doc_re = re.compile(r'<DOCNO>.([A-Za-z_-][A-Za-z0-9_-]*).<\/DOCNO>')
+	tags = re.compile(r"<[a-zA-Z\/]+>")
+	start = s.find("<TEXT>") + len("<TEXT>")
+	end = s.find("<\TEXT>") - len("<\TEXT>")
+	text = s[start:end].lower()
+	new = []
+	for i in text.split("\n"):
+    	match = tags.search(i)
+    	if not match and i != "":
+        	new.append(i)
+	tokenize(new,documentnumber)
 
-
-
-    tokenize(new,documentnumber)
 
 
 
@@ -60,7 +54,7 @@ def tokenize(doc,docno):
 	finaltokens = doc
 	for pos,term in enumerate(finaltokens):
 		if term in pos_index:
-			pos_index[term][0] = pos_index[term][0] + 1
+		 pos_index[term][0] = pos_index[term][0] + 1
 			if docno in pos_index[term][1]:
 				pos_index[term][1][docno].append(pos+1)
 			else:
