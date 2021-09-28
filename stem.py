@@ -1,8 +1,9 @@
 import re
 import json
 import singleword as sw
+from nltk.stem import PorterStemmer
 
-pos_index = {}
+stem_index = {}
 
 
 def readFile(filename):
@@ -52,25 +53,18 @@ def nextString(s, documentnumber):
 
 
 def tokenize(doc, docno):
-    # geekforgeek
     finaltokens = doc.split(' ')
-    for pos, term in enumerate(finaltokens):
-        if term in pos_index:
-            pos_index[term][0] = pos_index[term][0] + 1
-            if docno in pos_index[term][1]:
-                pos_index[term][1][docno].append(pos + 1)
-            else:
-                pos_index[term][1][docno] = [pos + 1]
+    ps = PorterStemmer()
+
+    for term in finaltokens:
+        x = ps.stem(term)
+        if x not in stem_index:
+            stem_index[x] = 1
         else:
-            pos_index[term] = []
+            stem_index[x]+=1
 
-            pos_index[term].append(1)
 
-            pos_index[term].append({})
 
-            pos_index[term][1][docno] = [pos + 1]
-
-    to_json(pos_index)
 
 
 def to_json(dict):
@@ -81,4 +75,4 @@ def to_json(dict):
 def main(filename):
     documentnumber = 1
     validateLine(filename, documentnumber)
-    print(pos_index)
+    print(stem_index)

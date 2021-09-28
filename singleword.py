@@ -56,21 +56,22 @@ def handletags(row):
 	if match:
 		pass
 	else:
-		htmlentities(row.lower())
+		checkTokenType(row.lower())
 
 def htmlentities(row):
 	 #print(row)
-	 row = row.replace("&blank;",'')
-	 row = row.replace("&hyph;",'')
-	 row = row.replace("sect;",'')
-	 row = row.replace("&times;",'')
-	 row = row.replace("&para;",'')
-	 checkTokenType(row)
+	 row = row.replace("&blank;",' ')
+	 row = row.replace("&hyph;",' ')
+	 row = row.replace("sect;",' ')
+	 row = row.replace("&times;",' ')
+	 row = row.replace("&para;",' ')
+	 return row
 
 
 
 
-def checkTokenType(row):
+def checkTokenType(row1):
+	row = htmlentities(row1)
 	row = row.split(' ')
 	# All the Regex
 	abbrevations = re.compile(r"(?:[a-zA-Z]+\.){2,}") ### u.s.a
@@ -92,6 +93,16 @@ def checkTokenType(row):
 			j = i.replace('.',"")
 			removePunctuations(j)
 			print(i)
+
+		elif (emailcheck.search(i)):
+			removePunctuations(i)
+
+		elif (ipcheck.search(i)):
+			removePunctuations(i)
+
+		elif (URLcheck.search(i)):
+			removePunctuations(i)
+
 
 		#monetory search step b
 		elif(monetory.search(i)):
@@ -116,25 +127,8 @@ def checkTokenType(row):
 
 
 
-		#Dates
-		#number formatting
-
-		#email
-		elif (emailcheck.search(i)):
-			removePunctuations(i)
-
-		#ip address
-		elif (ipcheck.search(i)):
-
-			removePunctuations(i)
-
-		#urls
-		elif (URLcheck.search(i)):
-
-			removePunctuations(i)
 
 		elif (fileextension.search(i)):
-
 			i = i.replace('.','')
 			removePunctuations(i)
 
@@ -147,8 +141,8 @@ def removePunctuations(row):
 	"""
 	removing punctuations
 	"""
-	s = ''.join(c for c in row if c in string.punctuation)
-	tokenize(row)
+	s = ''.join(c for c in row if c not in string.punctuation)
+	tokenize(s)
 
 
 

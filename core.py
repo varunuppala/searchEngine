@@ -1,9 +1,9 @@
 import argparse
-import csv
-import string
 import re
 import singleword
 import positional
+import stem
+import phrase
 
 def validateLine(document):
 	"""
@@ -64,6 +64,12 @@ def main():
 
         elif args.t == "pos":
             positional.main(args.f)
+
+        elif args.t == "stem":
+            stem.main(args.f)
+
+        elif args.t == "phrase":
+            phrase.main(args.f)
 
         else:
             print("Wrong Command")
