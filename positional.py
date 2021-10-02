@@ -1,12 +1,13 @@
 import re
 import json
 import singleword as sw
+import string
 
 pos_index = {}
-
+lexicon = {}
 
 def readFile(filename):
-    for rows in open(filename, "r"):
+    for rows in open("BigSample/%s" %filename, "r"):
         yield rows
 
 
@@ -47,30 +48,38 @@ def nextString(s, documentnumber):
         if not match and i != "":
             new.append(sw.htmlentities(i))
 
-    tokenize(''.join(new), documentnumber)
+    tokenize(' '.join(new), documentnumber)
     #print(''.join(new))
 
 
 def tokenize(doc, docno):
-    # geekforgeek
-    finaltokens = doc.split(' ')
+    """
+    Making the positional index
+    """
+    s = ''.join(c for c in doc if c not in string.punctuation)
+    finaltokens = s.split(' ')
+
+    for i in finaltokens:
+        if i not in lexicon:
+            lexicon[i] = len(lexicon)+1
+
     for pos, term in enumerate(finaltokens):
-        if term in pos_index:
-            pos_index[term][0] = pos_index[term][0] + 1
-            if docno in pos_index[term][1]:
-                pos_index[term][1][docno].append(pos + 1)
+        termid = lexicon[term]
+        if termid in pos_index:
+            pos_index[termid][0] = pos_index[termid][0] + 1
+            if docno in pos_index[termid][1]:
+                pos_index[termid][1][docno].append(pos + 1)
             else:
-                pos_index[term][1][docno] = [pos + 1]
+                pos_index[termid][1][docno] = [pos + 1]
         else:
-            pos_index[term] = []
+            pos_index[termid] = []
 
-            pos_index[term].append(1)
+            pos_index[termid].append(1)
 
-            pos_index[term].append({})
+            pos_index[termid].append({})
 
-            pos_index[term][1][docno] = [pos + 1]
+            pos_index[termid][1][docno] = [pos + 1]
 
-    to_json(pos_index)
 
 
 def to_json(dict):
@@ -81,4 +90,5 @@ def to_json(dict):
 def main(filename):
     documentnumber = 1
     validateLine(filename, documentnumber)
-    print(pos_index)
+    to_json(pos_index)
+    print(lexicon)

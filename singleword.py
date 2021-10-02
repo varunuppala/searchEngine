@@ -77,6 +77,7 @@ def checkTokenType(row1):
 	abbrevations = re.compile(r"(?:[a-zA-Z]+\.){2,}") ### u.s.a
 	monetory = re.compile(r"[$]([\d,]+)")#$20
 	digsepbycomma = re.compile(r"[\^\d]+[\,][\d]")
+	dateword = re.compile(r"([a-z]+) ([\d]{1,2}), ([\d]+)")
 	hyph = re.compile(r"(?=\S*['-])([a-zA-Z'-]+)")
 	digalpha = re.compile(r"([0-9]+)(-)([a-z]+)")
 	alphdig = re.compile(r"([a-z]+)(-)([0-9]+)")
@@ -88,11 +89,19 @@ def checkTokenType(row1):
 
 	for i in row:
 		#Step a
+		print(i)
 
 		if (abbrevations.search(i)):
 			j = i.replace('.',"")
 			removePunctuations(j)
-			print(i)
+
+
+		elif(dateword.search(i)):
+			month = dateword.search(i).group(1)
+			date = dateword.search(i).group(2)
+			year = dateword.search(i).group(3)
+
+			removePunctuations(month+"/"+date+"/"+year)
 
 		elif (emailcheck.search(i)):
 			removePunctuations(i)

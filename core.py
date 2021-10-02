@@ -4,6 +4,7 @@ import singleword
 import positional
 import stem
 import phrase
+import os
 
 def validateLine(document):
 	"""
@@ -34,51 +35,53 @@ def removeNewLine(l):
 		return pure[0]
 
 def identifyDocument(row):
-    print(row)
+	print(row)
 
 
 
 def readFile():
-    """
-    opening a file
-    """
-    for row in open("example.txt", "r"):
-        if not row == "\n":
-            yield row
+	"""
+	opening a file
+	"""
+	for row in open("example.txt", "r"):
+		if not row == "\n":
+			yield row
 
 def main():
-    """
-    Sole heart of the program.
-    """
-    parser = argparse.ArgumentParser()
-    parser.add_argument("f",help="Please enter the filename to be indexed")
-    parser.add_argument("t", help = "Please specify the type of index")
-    args = parser.parse_args()
+	"""
+	Sole heart of the program.
+	"""
+	parser = argparse.ArgumentParser()
+	parser.add_argument("f",help="Please enter the filename to be indexed")
+	parser.add_argument("t", help = "Please specify the type of index")
+	parser.add_argument("m",help = "please specify the memory",type = int)
+	args = parser.parse_args()
 
-    if not args.f:
-        print("Please Enter the File to Be Indexed")
+	if args.m == "No":
+		m = 0
+	else:
+		m = args.m
 
-    elif args.f:
-        if args.t == "single":
-            singleword.main(args.f)
+	if not args.f:
+		print("Please Enter the File to Be Indexed")
 
-        elif args.t == "pos":
-            positional.main(args.f)
-
-        elif args.t == "stem":
-            stem.main(args.f)
-
-        elif args.t == "phrase":
-            phrase.main(args.f)
-
-        else:
-            print("Wrong Command")
+	elif args.f:
+		if args.t == "single":
+			singleword.main(args.f,m)
+		elif args.t == "pos":
+			positional.main(args.f,m)
+		elif args.t == "stem":
+			stem.main(args.f,m)
+		elif args.t == "phrase":
+			phrase.main(args.f,m)
+		else:
+			print("Wrong Command")
 
 
 
 
 if __name__ == "__main__":
-    """
-    Runs only if run as a script.
-    """
-    main()
+	"""
+	Runs only if run as a script.
+	"""
+	main()

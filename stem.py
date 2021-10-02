@@ -48,6 +48,7 @@ def nextString(s, documentnumber):
         if not match and i != "":
             new.append(sw.htmlentities(i))
 
+
     tokenize(''.join(new), documentnumber)
     #print(''.join(new))
 
@@ -62,9 +63,6 @@ def tokenize(doc, docno):
             stem_index[x] = 1
         else:
             stem_index[x]+=1
-
-
-
 
 
 def to_json(dict):
