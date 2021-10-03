@@ -6,46 +6,6 @@ import stem
 import phrase
 import os
 
-def validateLine(document):
-	"""
-	checking if there are any comment lines
-	returning lines without comment lines
-	"""
-	# for comment lines
-	comment = re.compile(r"^<!--[ a-zA-Z0-9 =\/]*-->$")
-
-	for i in document:
-		match = comment.search(i)
-		#match1 = blank.search(i)
-		if not match:
-			return i.split('\n')
-
-
-
-def removeNewLine(l):
-	"""
-	removing all the blank lines
-	returns pure lines
-	"""
-	pure = []
-	for i in l:
-		if i:
-			pure.append(i)
-	if pure:
-		return pure[0]
-
-def identifyDocument(row):
-	print(row)
-
-
-
-def readFile():
-	"""
-	opening a file
-	"""
-	for row in open("example.txt", "r"):
-		if not row == "\n":
-			yield row
 
 def main():
 	"""
@@ -55,6 +15,7 @@ def main():
 	parser.add_argument("f",help="Please enter the filename to be indexed")
 	parser.add_argument("t", help = "Please specify the type of index")
 	parser.add_argument("m",help = "please specify the memory",type = int)
+	parser.add_argument("o", help = "Please specify the output directory")
 	args = parser.parse_args()
 
 	if args.m == "No":
@@ -67,13 +28,13 @@ def main():
 
 	elif args.f:
 		if args.t == "single":
-			singleword.main(args.f,m)
+			singleword.main(args.f,m,args.o)
 		elif args.t == "pos":
-			positional.main(args.f,m)
+			positional.main(args.f,m,args.o)
 		elif args.t == "stem":
-			stem.main(args.f,m)
+			stem.main(args.f,m,args.o)
 		elif args.t == "phrase":
-			phrase.main(args.f,m)
+			phrase.main(args.f,m,args.o)
 		else:
 			print("Wrong Command")
 

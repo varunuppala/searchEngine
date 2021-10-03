@@ -2,9 +2,11 @@ import re
 import json
 import singleword as sw
 import os
+import pandas as pd
+import statistics
 
 phrase_index_2 = {}
-
+lexicon = {}
 fileno = []
 
 def readDirectory(directory):
@@ -69,56 +71,98 @@ def tokenize(doc, docno,m):
 
     finaltokens = doc.split(' ')
     for j in range(len(finaltokens)-1):
-        s = finaltokens[j]+" "+finaltokens[j+1]
+        if finaltokens[j]!= " " and finaltokens[j+1]!=" ":
+            s = finaltokens[j]+" "+finaltokens[j+1]
+
         if s not in phrase_index_2:
-            phrase_index_2[s]=1
+            phrase_index_2[s]={}
+            phrase_index_2[s][docno]=1
             if len(phrase_index_2)==m:
                 to_json(phrase_index_2)
+
+
                 phrase_index_2.clear()
 
         else:
-            phrase_index_2[s]+=1
+            if docno not in phrase_index_2[s]:
+                phrase_index_2[s][docno]=1
+            else:
+                phrase_index_2[s][docno]+=1
             if len(phrase_index_2)==m:
                 #print("hi")
                 to_json(phrase_index_2)
+
                 phrase_index_2.clear()
 
 
 
 
-
-def combine_json():
-    files = readDirectory("output")
-    for file in files:
+def combine_json(output):
+    files = readDirectory(output)
+    for i,file in enumerate(files):
+        print(i)
         with open(file) as json_file:
-            data = json.load(json_file)
+            present = json.load(json_file)
 
-        if os.path.exists("output/final.json"):
-            with open("output/final.json") as final:
-                dicto = json.load(final)
-                for i in data.keys():
-                    if i in dicto.keys():
-                        dicto[i] += data[i]
-                    else:
-                        dicto[i] = data[i]
-
-        else:
-            with open("output/final.json","w") as final:
-                json.dump(data,final)
         os.remove(file)
+
+        if i == 0:
+            with open("output/final.json","w") as final:
+                json.dump(present,final)
+        else:
+            with open("output/final.json") as df1:
+                dicto = json.load(df1)
+
+            for term,pl in present.items():
+                if term in dicto:
+                    for docid in pl:
+                        temp = pl
+                        dicto[term].update(temp)
+                else:
+                    dicto[term] = pl
+
+            with open("output/final.json","w") as df2:
+                json.dump(dicto,df2)
+
+
+
+
 
 
 
 def to_json(dict):
     fileno.append(len(fileno)+1)
+    print("LOADING....")
     with open("output/%s.json" %fileno[len(fileno)-1], "w") as outfile:
         json.dump(dict, outfile)
 
 
+def describefile():
+        with open("output/final.json") as final:
+            dict = json.load(final)
+        filenos = {}
+        for term,pl in dict.items():
+            for doc,freq in pl.items():
+                if doc in filenos:
+                    filenos[doc]+=1
+                else:
+                    filenos[doc]=1
+        frequency_list=list(filenos.values())
+        print("# size of lexicon : ",len(frequency_list))
+        print("size of file in bytes : ",os.path.getsize("output/final.json"))
+        print("Maximum document frequency : ",max(frequency_list))
+        print("Minimum document frequency : ",min(frequency_list))
+        print("Mean document frequency : ",statistics.mean(frequency_list))
+        print("Median document frequency : ",statistics.median(frequency_list))
 
 
-def main(directory,m):
+
+
+
+def main(directory,m,output):
     documentnumber = 1
     validateLine(directory, documentnumber,m)
     to_json(phrase_index_2)
-    combine_json()
+    if m!=0:
+        combine_json(output)
+    describefile()
