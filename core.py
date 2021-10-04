@@ -18,6 +18,11 @@ def main():
 	parser.add_argument("o", help = "Please specify the output directory")
 	args = parser.parse_args()
 
+	if os.path.exists("output/final.json"):
+		os.remove("output/final.json")
+	if os.path.exists("output/lexicon.json"):
+		os.remove("output/lexicon.json")
+		
 	if args.m == "No":
 		m = 0
 	else:

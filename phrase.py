@@ -4,18 +4,25 @@ import singleword as sw
 import os
 import pandas as pd
 import statistics
+import string
 
 phrase_index_2 = {}
-lexicon = {}
+
 fileno = []
 
 def readDirectory(directory):
+    """
+    Reads the files in the directory
+    """
     files = os.listdir(directory)
     files = [directory+"/"+s for s in files]
     return files
 
 
 def readFile(files):
+    """
+    Yields generators
+    """
     for i in files:
         with open(i, 'rt') as f:
             for rows in open(i, "r"):
@@ -23,6 +30,9 @@ def readFile(files):
 
 
 def validateLine(directory, documentnumber,m):
+    """
+    Reads line by line, sums up a document and passes it for tokenizing
+    """
     documentnumber = 1
     comment = re.compile(r"^<!--[ a-zA-Z0-9 =\/]*-->$")
     stack = []
@@ -46,9 +56,10 @@ def validateLine(directory, documentnumber,m):
 
 
 def nextString(s, documentnumber,m):
-    # Removing all the new text except for ones between texts
-    # Removing additional tags also
-    # print('Hello World')
+    """
+    Removing all the new text except for ones between texts
+    Removing additional tags also
+    """
     doc_re = re.compile(r'<DOCNO>.([A-Za-z_-][A-Za-z0-9_-]*).<\/DOCNO>')
     tags = re.compile(r"<[a-zA-Z\/]+>")
     start = s.find("<TEXT>") + len("<TEXT>")
@@ -63,24 +74,36 @@ def nextString(s, documentnumber,m):
     tokenize(' '.join(new), documentnumber,m)
 
 
+def removePunctuations(row):
+    """
+    removing punctuations from the string
+    """
+    punc = "!()-[]{};:'""\,<>./?@#$%^&*_~"
+    for ele in row:
+        if ele in punc:
+            row = row.replace(ele, " ")
+    return row
+
 
 def tokenize(doc, docno,m):
     """
     Tokenizing the document
     """
-
-    finaltokens = doc.split(' ')
+    doc1 = removePunctuations(doc)
+    finaltokens = doc1.split(' ')
+    if "" in finaltokens:
+        finaltokens.remove("")
+    if " " in finaltokens:
+        finaltokens.remove(" ")
     for j in range(len(finaltokens)-1):
-        if finaltokens[j]!= " " and finaltokens[j+1]!=" ":
-            s = finaltokens[j]+" "+finaltokens[j+1]
+        s = finaltokens[j]+" "+finaltokens[j+1]
 
         if s not in phrase_index_2:
             phrase_index_2[s]={}
             phrase_index_2[s][docno]=1
             if len(phrase_index_2)==m:
+                # Saving the file if it hits the memory constraint
                 to_json(phrase_index_2)
-
-
                 phrase_index_2.clear()
 
         else:
@@ -89,9 +112,8 @@ def tokenize(doc, docno,m):
             else:
                 phrase_index_2[s][docno]+=1
             if len(phrase_index_2)==m:
-                #print("hi")
+                # Saving the file if it hits the memory constraint
                 to_json(phrase_index_2)
-
                 phrase_index_2.clear()
 
 
@@ -100,7 +122,7 @@ def tokenize(doc, docno,m):
 def combine_json(output):
     files = readDirectory(output)
     for i,file in enumerate(files):
-        print(i)
+        print("Merging"+"."*((i%10)+1))
         with open(file) as json_file:
             present = json.load(json_file)
 
@@ -132,7 +154,7 @@ def combine_json(output):
 
 def to_json(dict):
     fileno.append(len(fileno)+1)
-    print("LOADING....")
+    print("Loading"+"."*((len(fileno)%10)+1))
     with open("output/%s.json" %fileno[len(fileno)-1], "w") as outfile:
         json.dump(dict, outfile)
 
@@ -148,7 +170,17 @@ def describefile():
                 else:
                     filenos[doc]=1
         frequency_list=list(filenos.values())
-        print("# size of lexicon : ",len(frequency_list))
+
+        lexicon = {}
+        for i,j in dict.items():
+            if i not in lexicon:
+                lexicon[i]=len(j)
+            else:
+                lexicon[i]+=len(j)
+        with open("output/lexicon.json","w") as out:
+            json.dump(lexicon,out)
+
+        print("# size of lexicon : ",len(dict))
         print("size of file in bytes : ",os.path.getsize("output/final.json"))
         print("Maximum document frequency : ",max(frequency_list))
         print("Minimum document frequency : ",min(frequency_list))
@@ -163,6 +195,5 @@ def main(directory,m,output):
     documentnumber = 1
     validateLine(directory, documentnumber,m)
     to_json(phrase_index_2)
-    if m!=0:
-        combine_json(output)
+    combine_json(output)
     describefile()
