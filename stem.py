@@ -6,6 +6,8 @@ import pandas as pd
 import statistics
 import string
 from nltk.stem import PorterStemmer
+import time
+start_time = time.time()
 
 stem_index = {}
 fileno = []
@@ -180,13 +182,19 @@ def describefile():
                 lexicon[i]+=len(j)
         with open("output/lexicon.json","w") as out:
             json.dump(lexicon,out)
-        
+
         print("# size of lexicon : ",len(dict))
-        print("size of file in bytes : ",os.path.getsize("output/final.json"))
+        print("\n")
+        print("size of file in bytes : ",os.path.getsize("output/final.json")+os.path.getsize("output/lexicon.json"))
+        print("\n")
         print("Maximum document frequency : ",max(frequency_list))
+        print("\n")
         print("Minimum document frequency : ",min(frequency_list))
+        print("\n")
         print("Mean document frequency : ",statistics.mean(frequency_list))
+        print("\n")
         print("Median document frequency : ",statistics.median(frequency_list))
+        print("\n")
 
 
 
@@ -196,5 +204,11 @@ def main(directory,m,output):
     documentnumber = 1
     validateLine(directory, documentnumber,m)
     to_json(stem_index)
+    loading = (time.time() - start_time)*1000
     combine_json(output)
     describefile()
+    final = (time.time() - start_time)*1000
+    merging = (final - loading)
+    print("--- %s seconds ---LOADING---" % loading)
+    print("--- %s seconds ---MERGING---" % merging)
+    print("--- %s seconds ---TOTAL---" % final)
