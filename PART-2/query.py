@@ -29,6 +29,9 @@ def main():
     1.Argument Parsing
     2.Assigns calls as specified by the user.(Can be done later)
     3.Build indexes for the query document
+    4.Load the indexes from the previous step(Part-1)
+    5.Compare using technqiues
+    6.Report them
 
     """
     start_time = time.time()
