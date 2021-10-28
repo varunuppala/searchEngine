@@ -14,6 +14,7 @@ warnings.filterwarnings('ignore')
 
 single_index = {}
 fileno = []
+doclist = {}
 
 
 def htmlentities(row):
@@ -50,6 +51,7 @@ def validateLine(directory, documentnumber, m):
     """
     documentnumber = 1
     comment = re.compile(r"^<!--[ a-zA-Z0-9 =\/]*-->$")
+    docno = re.compile(r"<DOCNO> ([A-Z0-9\-]+) <\/DOCNO>")
     stack = []
     string = ''
     files = readDirectory(directory)
@@ -57,6 +59,9 @@ def validateLine(directory, documentnumber, m):
 
     for i in rows:
         match = comment.search(i)  # Checking commments
+        docmatch = docno.search(i)
+        if docmatch:
+            doclist[documentnumber] = docmatch.group(1)
         if i == "<DOC>\n":
             stack.append("1")  # appending in stack
         elif i == "</DOC>\n" and stack:
@@ -68,6 +73,7 @@ def validateLine(directory, documentnumber, m):
         elif not match:
             # Checking if match or not for comment lines and appending if required only
             string += i
+
 
 
 def nextString(s, documentnumber, m):
@@ -319,6 +325,11 @@ def describefile():
         print("Median document frequency : ",statistics.median(frequency_list))
         print("\n")
 
+def doclist_json(doclist):
+    f = open("Output/documentlist.json", "w")
+    json.dump(doclist, f)
+    f.close()
+
 
 def main(directory, m, output):
     documentnumber = 1
@@ -329,6 +340,7 @@ def main(directory, m, output):
     describefile()
     final = (time.time() - start_time)*1000
     merging = (final - loading)
+    doclist_json(doclist)
     print("--- %s seconds ---LOADING---" % loading)
     print("--- %s seconds ---MERGING---" % merging)
     print("--- %s seconds ---TOTAL---" % final)

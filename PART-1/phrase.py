@@ -8,7 +8,7 @@ import time
 start_time = time.time()
 
 phrase_index_2 = {}
-
+doclist = {}
 fileno = []
 
 def readDirectory(directory):
@@ -36,6 +36,7 @@ def validateLine(directory, documentnumber,m):
     """
     documentnumber = 1
     comment = re.compile(r"^<!--[ a-zA-Z0-9 =\/]*-->$")
+    docno = re.compile(r"<DOCNO> ([A-Z0-9\-]+) <\/DOCNO>")
     stack = []
     string = ''
     files = readDirectory(directory)
@@ -43,6 +44,9 @@ def validateLine(directory, documentnumber,m):
 
     for i in rows:
         match = comment.search(i)  # Checking commments
+        docmatch = docno.search(i)
+        if docmatch:
+            doclist[documentnumber] = docmatch.group(1)
         if i == "<DOC>\n":
             stack.append("1")  # appending in stack
         elif i == "</DOC>\n" and stack:
@@ -196,6 +200,10 @@ def describefile():
         print("Median document frequency : ",statistics.median(frequency_list))
         print("\n")
 
+def doclist_json(doclist):
+    f = open("Output/documentlist.json", "w")
+    json.dump(doclist, f)
+    f.close()
 
 
 
@@ -209,6 +217,7 @@ def main(directory,m,output):
     describefile()
     final = (time.time() - start_time)*1000
     merging = (final - loading)
+    doclist_json(doclist)
     print("--- %s seconds ---LOADING---" % loading)
     print("--- %s seconds ---MERGING---" % merging)
     print("--- %s seconds ---TOTAL---" % final)
