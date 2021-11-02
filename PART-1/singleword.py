@@ -263,7 +263,7 @@ def combine_json(output):
 
         if i == 0:
             with open("output/final.json","w") as final:
-                json.dump(present,final)
+                json.dump(present,final,indent = 4)
         else:
             with open("output/final.json") as df1:
                 dicto = json.load(df1)
@@ -308,9 +308,10 @@ def describefile():
             if i not in lexicon:
                 lexicon[i]=len(j)
             else:
+                print('should not print')
                 lexicon[i]+=len(j)
         with open("output/lexicon.json","w") as out:
-            json.dump(lexicon,out)
+            json.dump(lexicon,out, indent = 4)
 
         print("# size of lexicon : ",len(dict))
         print("\n")
