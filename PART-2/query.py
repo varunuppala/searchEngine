@@ -12,6 +12,11 @@ import warnings
 from pprint import pprint
 import json
 import pandas as pd
+from math import sqrt
+from score import *
+from querydoc import *
+
+
 
 warnings.filterwarnings('ignore')
 
@@ -20,72 +25,129 @@ def parse_arguments():
     """
     Parsing the Arguments
     """
-    parser= argparse.ArgumentParser(description = "Perform Quering")
-    parser.add_argument('-i', dest ='indexPath')
-    parser.add_argument('-q', dest = 'queryPath')
-    parser.add_argument('-m', dest = 'retrievalMode')
-    parser.add_argument('-t', dest = 'indexType')
-    parser.add_argument('-r', dest = 'resultsPath')
+    parser = argparse.ArgumentParser(description = "Perform Quering")
+    parser.add_argument('i', help ='indexPath')
+    parser.add_argument('q', help = 'queryPath')
+    parser.add_argument('m', help = 'retrievalMode')
+    parser.add_argument('t', help = 'indexType')
+    parser.add_argument('r', help = 'resultsPath')
     args= parser.parse_args()
-    return args.indexPath,args.queryPath,args.retrievalMode,args.indexType,args.resultsPath
+    return args.i,args.q,args.m,args.t,args.r
 
+def open_index(fpath,index):
+    
+    #Opening the Inverted Index
+    f = open("%s/%s/final.json" %(fpath,index))
+
+
+    #Opening the Lexicon
+    f2 = open("%s/%s/lexicon.json" %(fpath,index))
+
+
+    #Opening the Document List
+    f3 = open("%s/documentlist.json" %fpath)
+
+    return json.load(f),json.load(f2),json.load(f3)
 
 def main():
     """
     main function for the script
     Goals:
     1.Argument Parsing done
-    2.Assigns calls as specified by the user.(Can be done later)
+    2.Assigns calls as specified by the user
     3.Build indexes for the query document
     4.Load the indexes from the previous step(Part-1)
     5.Compare using technqiues
     6.Report them
     """
-    start_time = time.time()#tracking time
-    #indexPath,queryPath,retrievalMode,indexPath,resultsPath = parse_arguments()
-    #print(indexPath,queryPath,retrievalMode,indexPath,resultsPath)
-    queries = qd.main()# pass the queryPath to this in the later stage
-    queryUpdated = qd.singleindexQuery(queries)
-    pprint(queryUpdated)
+    # tracking time
+    start_time = time.time()
 
-    f = open("../PART-1/Output/final.json",)
-    f2 = open("../PART-1/Output/lexicon.json",)
-    f3 = open("../PART-1/Output/documentlist.json",)
+    indexPath,queryPath,method,indextype,resultsPath = parse_arguments()
+    
 
-    invertedindex = json.load(f)
-    lexicon = json.load(f2)
-    doclist = json.load(f3)
-    method = 'lm'
-    df = pd.DataFrame(columns = ['queryid', '0', 'docid', 'rank', 'score', 'method'])
+    isExist = os.path.exists(resultsPath)
+    if not isExist:
+        os.makedirs(resultsPath)
+
+
+    resultsPath = resultsPath+"/results.txt"
+
+    # pass the queryPath to this in the later stage
+    queryUpdated = indexType(queryPath,indextype)
+
+
+    # pass the index path
+    invertedindex,lexicon,doclist= open_index(indexPath,indextype)
+
+
+    # Average Doc Len
+    avglen  = averagedocl(doclist)
+
+    # Query frequency
+    qf = queryfreq(queryUpdated)
+
+    try:
+        os.remove(resultsPath)
+    except OSError:
+        pass
+
+    with open(resultsPath, 'a') as results_file:
+        results_file.write('')
+
+
+    # Testing for few queries
     numq = 0
-    for queryid, querytermlist in queryUpdated.items():
-        dict1 = {}
-        for queryterm in querytermlist:
-            for docid, tf in invertedindex[queryterm].items():
-                if method == 'cos':
-                    sim = tf*(len(doclist)/lexicon[queryterm])*(len(doclist)/lexicon[queryterm])
-                elif method == 'bm':
-                    sim = 2.2*tf*((len(doclist) - lexicon[queryterm])/lexicon[queryterm])/(tf + 1.2*(0.25 + 0.75*1))
-                elif method == 'lm':
-                    sim = (invertedindex[queryterm][docid] + 0.2*tf/len(doclist))/(220 + 0.2)
-                if docid in dict1:
-                    dict1[docid] += sim
-                else:
-                    dict1[docid] = sim
 
-        dict1 = sorted(dict1.items(), key=lambda x: x[1], reverse=True)
+    d1,d2 = 0,0 
+
+    for queryid, querytermlist in queryUpdated.items():
+        maindict = {}
+
+        for queryterm in querytermlist:
+            if queryterm in invertedindex:
+
+                for docid,tf in invertedindex[queryterm].items():
+
+                    #Finding Cosine Product
+                    if method == 'cos':
+                        value = d(tf,len(doclist),lexicon[queryterm]) * w(qf[queryid][queryterm],len(doclist),lexicon[queryterm])
+
+                    # Finding BM25 
+                    elif method == 'bm25':
+                        #change third one to qtermfreq
+                        value = BM25(lexicon[queryterm],tf,qf[queryid][queryterm],0,len(doclist),doclist[docid][1],avglen)
+                      
+                            
+                    # Finding the Dirchilet smoothing 
+                    elif method == 'lm':
+                        value = LM(invertedindex[queryterm][docid],tf,len(doclist),avglen)
+
+
+                    # Storing the score
+                    if docid in maindict:
+                            maindict[docid] += value
+
+                    else:
+                            maindict[docid] = value
+
+        # Sorting for the ranks
+        maindict = sorted(maindict.items(), key=lambda x: x[1], reverse=True)
 
         rank = 0
-        for docid, score in dict1:
+        s = ""
+        # Printing the output for now
+        for docid, score in maindict:
             rank += 1
-            print(str(queryid) + ' 0 ' + str(doclist[docid]) + ' ' + str(rank) + ' ' + str(score) + ' ' + method)        
+            s += str(queryid) + ' 0 ' + str(doclist[docid][0]) + ' ' + str(rank) + ' ' + str(score) + ' ' + method + "\n"      
             if rank == 100:
                 break
-        numq += 1
-        if numq == 5:
-            exit()
-        
 
+        with open(resultsPath, "a") as text_file:
+            text_file.write(s)
+        print("Loading...")
+
+        
 
 
 

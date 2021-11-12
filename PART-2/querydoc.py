@@ -158,6 +158,7 @@ def singleindexQuery(queryDict):
     stopwords = getStopWords()
     for number,query in queryDict.items():
 
+
         #lowering the text
         text = query.lower()
 
@@ -238,14 +239,30 @@ def phraseindexQuery(queryDict):
     return queryDict
 
 
+def indexType(qpath,index):
+
+    queries = querying(qpath) #pass path
+
+    if index == "single":
+        query = singleindexQuery(queries)
+        return query
+        
+    elif index == "pos":
+        query = posindexQuery(queries)
+        return query
+
+    elif index == "stem":
+        query = stemindexQuery(queries)
+        return query
+
+    elif index == "phrase":
+        query= phraseindexQuery(queries)
+        return query
 
 
 
-
-
-def main():
+def querying(path):
     #Path for the query file
-    path = "/Users/varunuppala/Desktop/searchEngine/PART-2/P2files/queryfile.txt"
 
     #Open the Query file
     gen = extractFile(path)

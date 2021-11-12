@@ -17,16 +17,19 @@ def main():
     parser.add_argument("m",help = "please specify the memory",type = int)
     parser.add_argument("o", help = "Please specify the output directory")
     args = parser.parse_args()
-    isExist = os.path.exists(args.o)
+    outz = args.o +"/" +args.t
+    isExist = os.path.exists(outz)
 
     if not isExist:
-        os.makedirs(args.o)
+        os.makedirs(outz)
 
-    files = os.listdir(args.o)
+    files = os.listdir(outz)
 
     for i in files:
-        if os.path.exists("output/%s" %i):
-            os.remove("output/%s" %i)
+        if os.path.exists("output/%s/%s" %(args.t , i)):
+            os.remove("output/%s/%s" %(args.t , i))
+
+
 
 
     if args.m == "No":
@@ -34,18 +37,20 @@ def main():
     else:
         m = args.m
 
+
+    
     if not args.f:
         print("Please Enter the File to Be Indexed")
 
     elif args.f:
         if args.t == "single":
-            singleword.main(args.f,m,args.o)
+            singleword.main(args.f,m,outz)
         elif args.t == "pos":
-            positional.main(args.f,m,args.o)
+            positional.main(args.f,m,outz)
         elif args.t == "stem":
-            stem.main(args.f,m,args.o)
+            stem.main(args.f,m,outz)
         elif args.t == "phrase":
-            phrase.main(args.f,m,args.o)
+            phrase.main(args.f,m,outz)
         else:
             print("Wrong Command")
 

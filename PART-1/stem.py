@@ -48,7 +48,10 @@ def validateLine(directory, documentnumber,m):
         match = comment.search(i)  # Checking commments
         docmatch = docno.search(i)
         if docmatch:
-            doclist[documentnumber] = docmatch.group(1)
+            #for document number and length
+            l = []
+            l.append(docmatch.group(1))
+            doclist[documentnumber] = l
         if i == "<DOC>\n":
             stack.append("1")  # appending in stack
         elif i == "</DOC>\n" and stack:
@@ -72,6 +75,7 @@ def nextString(s, documentnumber,m):
     start = s.find("<TEXT>") + len("<TEXT>")
     end = s.find("<\TEXT>") - len("<\TEXT>")
     text = s[start:end].lower()
+    doclist[documentnumber].append(len(text.split())) 
     new = []
     for i in text.split("\n"):
         match = tags.search(i)
@@ -137,10 +141,10 @@ def combine_json(output):
         os.remove(file)
 
         if i == 0:
-            with open("output/final.json","w") as final:
+            with open("output/stem/final.json","w") as final:
                 json.dump(present,final)
         else:
-            with open("output/final.json") as df1:
+            with open("output/stem/final.json") as df1:
                 dicto = json.load(df1)
 
             for term,pl in present.items():
@@ -151,7 +155,7 @@ def combine_json(output):
                 else:
                     dicto[term] = pl
 
-            with open("output/final.json","w") as df2:
+            with open("output/stem/final.json","w") as df2:
                 json.dump(dicto,df2)
 
 
@@ -159,7 +163,7 @@ def combine_json(output):
 def to_json(dict):
     fileno.append(len(fileno)+1)
     print("Loading"+"."*((len(fileno)%10)+1))
-    with open("output/%s.json" %fileno[len(fileno)-1], "w") as outfile:
+    with open("output/stem/%s.json" %fileno[len(fileno)-1], "w") as outfile:
         json.dump(dict, outfile)
 
 
@@ -167,7 +171,7 @@ def describefile():
         """
         Describes the file with max mean min document frequency
         """
-        with open("output/final.json") as final:
+        with open("output/stem/final.json") as final:
             dict = json.load(final)
         filenos = {}
         for term,pl in dict.items():
@@ -185,12 +189,12 @@ def describefile():
                 lexicon[i]=len(j)
             else:
                 lexicon[i]+=len(j)
-        with open("output/lexicon.json","w") as out:
+        with open("output/stem/lexicon.json","w") as out:
             json.dump(lexicon,out)
 
         print("# size of lexicon : ",len(dict))
         print("\n")
-        print("size of file in bytes : ",os.path.getsize("output/final.json")+os.path.getsize("output/lexicon.json"))
+        print("size of file in bytes : ",os.path.getsize("output/stem/final.json")+os.path.getsize("output/stem/lexicon.json"))
         print("\n")
         print("Maximum document frequency : ",max(frequency_list))
         print("\n")

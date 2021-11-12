@@ -1,0 +1,67 @@
+{
+    "settings": {
+        "index": {
+            "number_of_replicas": 0,
+            "number_of_shards": 1
+        },
+        "analysis": {
+            "filter": {
+                "my_stopwords_filter": {
+                    "type":       "stop",
+                    "stopwords":  "_english_"
+                }
+            },
+            "analyzer": {
+                "my_stem": {
+                    "type": "custom",
+                    "tokenizer": "standard",
+                    "filter": [
+                        "lowercase",
+                        "apostrophe",
+                        "porter_stem"
+                    ]
+                },
+                "my_single": {
+                    "type": "custom",
+                    "tokenizer": "standard",
+                    "filter": [
+                        "lowercase",
+                        "apostrophe",
+                        "my_stopwords_filter"
+                    ]
+                }
+            }
+        },
+        "similarity" : {
+            "my_bm25" : {
+                "type" : "BM25",
+                "k1": 2.0,
+                "b": 0.7
+            },
+            "my_tfidf": {
+                "type": "scripted",
+                    "script": {
+                        "source": "double tf = Math.sqrt(doc.freq); double idf = Math.log((field.docCount+1.0)/(term.docFreq+1.0)) + 1.0; double norm = 1/Math.sqrt(doc.length); return query.boost * tf * idf * norm;"
+                    }
+            },
+            "my_lm" : {
+                "type":"LMDirichlet",
+                "mu" : 1000
+
+            }
+        }
+    },
+    "mappings": {
+        "properties": {
+            "content": {
+                "type": "text",
+                "store": true,
+                "similarity": "my_lm",
+                "analyzer": "my_stem"
+            }
+        }
+    }
+}
+
+time python query.py output P2files/queryfile.txt lm stem results
+time python query.py output P2files/queryfile.txt bm25 stem results
