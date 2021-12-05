@@ -70,6 +70,8 @@ def main():
     except OSError:
         pass
 
+    resultspath = resultspath +"/results_dynamic.txt"
+
     with open(resultspath, 'a') as results_file:
         results_file.write('')
 
@@ -90,7 +92,7 @@ def main():
     print("waiting..")
     avglen  = averagedocl(doclist)   
 
-    queryUpdated_phrase = indexType(queryPath,"phrase")
+    queryUpdated_phrase = indexType(querypath,"phrase")
     qf_phrase = queryfreq(queryUpdated_phrase) 
 
 
@@ -106,7 +108,7 @@ def main():
     for queryid in queryUpdated_phrase:
         maindict = {}
         dupdict = {}
-        queryUpdated_phrase = indexType(queryPath,"phrase")
+        queryUpdated_phrase = indexType(querypath,"phrase")
         querytermlist = queryUpdated_phrase[queryid]
         for queryterm in querytermlist:
             if queryterm in invertedindex_phrase:
@@ -135,10 +137,10 @@ def main():
         invertedindex_single = open_invertedindex(indexpath,"single")
         lexicon_single = open_lexicon(indexpath,"single")
 
-        queryUpdated_pos = indexType(queryPath,"pos")
+        queryUpdated_pos = indexType(querypath,"pos")
         querytermlist_pos = queryUpdated_pos[queryid]
 
-        queryUpdated_single = indexType(queryPath,"single")
+        queryUpdated_single = indexType(querypath,"single")
         querytermlist_single = queryUpdated_single[queryid]
 
         qf_pos = queryfreq(queryUpdated_pos) 
@@ -199,7 +201,7 @@ def main():
         invertedindex_stem = open_invertedindex(indexpath,"stem")
         lexicon_stem = open_lexicon(indexpath,"stem")
 
-        queryUpdated_stem = indexType(queryPath,"stem")
+        queryUpdated_stem = indexType(querypath,"stem")
         querytermlist_stem = queryUpdated_stem[queryid]
         qf_stem = queryfreq(queryUpdated_stem) 
 
